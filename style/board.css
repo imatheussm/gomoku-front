@@ -1,0 +1,21 @@
+.gomoku-board{
+    display: grid;
+    width: 400px;
+    height: 400px;
+}
+
+.gomoku-board-check{
+    border-radius: 10px;
+    background-color: gray;
+    width: 90%;
+    height: 90%;
+    padding: 2.5%;
+}
+
+.red{
+    background-color: red;
+}
+
+.blue{
+    background-color: blue;
+}
