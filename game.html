@@ -9,13 +9,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
 
     <title>Home</title>
+    <link rel="stylesheet" href="assets/style/board.css">
+    <script src="assets/scripts/board.js"></script>
   </head>
   <body>
 
     <div class="container">
         <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-          <a href="./home.html" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none">
-            <img src="../assets/images/git-preto.png" width="30" height="30">
+          <a href="./index.html" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none">
+            <img src="assets/images/git-preto.png" width="30" height="30">
           </a>
     
           <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
@@ -24,7 +26,7 @@
     
           <div class="col-md-3 text-end">
             <a class="btn btn-secondary" href="./rank.html" role="button">Rankings</a>
-            <a class="btn btn-danger" href="./game.html" role="button">Play Now!</a>
+            <a class="btn btn-danger" href="." role="button">Play Now!</a>
           </div>
         </header>
     </div>
@@ -32,19 +34,14 @@
     <div class="row">
         <div class="col"></div>
         <div class="col-md-auto">
-            <form action="./game.html">
-                <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Enter your name</label>
-                    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                </div>
-                <button class="btn btn-danger">Play</button>
-            </form>
+            <div id="game"></div>
         </div>
         <div class="col"></div>
     </div>
-
-</div>
-
+    <script>
+      let board = new Board(10)
+      board.draw('game')
+    </script>
     <div class="container">
         <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
           <div class="col-md-6 d-flex align-items-center">
@@ -52,7 +49,8 @@
           </div>
       
           <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
-            <li class="ms-3"><a class="text-muted" href="https://github.com/imatheussm/gomoku"><img src="../assets/images/git-preto.png" width="30" height="30"></img></a></li>
+            <li class="ms-3"><a class="text-muted" href="https://github.com/imatheussm/gomoku">
+                <img src="assets/images/git-preto.png" width="30" height="30"/></a></li>
           </ul>
         </footer>
     </div>
