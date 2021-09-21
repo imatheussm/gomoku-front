@@ -1,4 +1,34 @@
+.index-container {
+    position: relative;
+    text-align: center;
+    justify-content: center;
+}
+
+.overlay {
+    position: relative;
+    width: 400px;
+    height: 400px; 
+    z-index: -1;
+    background-color: #ffffff;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+
+.overlay-container {
+    position: relative;
+    text-align: center;
+}
+
+
+#winner-text {
+    position: relative;
+    
+}
+
 .gomoku-board{
+    position: absolute;
     display: grid;
     width: 400px;
     height: 400px;

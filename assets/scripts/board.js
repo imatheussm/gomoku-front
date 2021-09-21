@@ -10,9 +10,35 @@ class Board{
 
         this.currentPlayer = -1;
 
+        // Board
         this.boardElement = document.createElement('div')
         this.boardElement.className = 'gomoku-board'
+        this.boardElement.id = 'gomoku-board'
         this.boardElement.style.gridTemplateColumns = 'auto '.repeat(side);
+
+        // Overlay after a win
+        this.overlay = document.createElement('div')
+        this.overlay.className = 'overlay'
+        this.overlay.style.visibility = 'hidden'
+
+        // Container for overlay objects
+        let overlayContainer = document.createElement('div')
+        overlayContainer.className = 'overlay-container'
+        this.overlay.appendChild(overlayContainer)
+
+        // Overlay object: text informing the winner
+        this.winnerText = document.createElement('p')
+        this.winnerText.id = 'winner-text'
+        overlayContainer.appendChild(this.winnerText)
+
+        // Overlay object: play again button
+        let playAgainButton = document.createElement('button')
+        playAgainButton.className = 'btn btn-danger'
+        playAgainButton.id = 'play-again-button'
+        playAgainButton.type = 'button'
+        playAgainButton.innerHTML = 'Play Again'
+        playAgainButton.onclick = () => this.resetBoard();
+        overlayContainer.appendChild(playAgainButton)
 
         this.checks = []
         this.gamestate = []
@@ -42,11 +68,42 @@ class Board{
         }
     }
 
+    resetBoard()    
+    {
+        this.overlay.style.visibility = 'hidden'
+        this.overlay.style.zIndex = ''
+        this.winnerText.innerHTML = ''
+        
+        this.checks = [];
+
+        for (let i = 0; i < this.side; i++) {
+
+            for (let j = 0; j < this.side; j++) {
+
+                this.gamestate[i][j] = 0             
+                let check = document.getElementById(i + ' ' + j)
+                check.className = 'gomoku-board-check'
+                this.checks.push(check)
+                
+            }
+            
+        }
+    }
+
+    showWinner()
+    {
+        this.overlay.style.opacity = '0.9'
+        this.overlay.style.zIndex = 1
+        this.overlay.style.visibility = 'visible'
+        this.winnerText.innerHTML = (this.currentPlayer == -1 ? "Blue" : "Red") + " player won!"
+    }
+
 
     draw(parentId)
     {
         let parent = document.getElementById(parentId)
         parent.appendChild(this.boardElement)
+        parent.appendChild(this.overlay)
     }
 
     /**
@@ -57,8 +114,6 @@ class Board{
     {
         let check = event.target
         
-        console.log("Checked", check.id)
-        
         let [x, y] = check.id.split(' ').map(value => parseInt(value))
         if(this.gamestate[x][y]) return
 
@@ -66,7 +121,7 @@ class Board{
         event.target.className += this.currentPlayer < 0 ? ' blue' : ' red'
 
         if (this.didGameEnd([x, y])) {
-            alert("Fim de jogo!")
+           this.showWinner()
         } 
 
         this.currentPlayer = -this.currentPlayer;
@@ -113,8 +168,6 @@ class Board{
             }
         }
 
-        //console.log("Posição atual:" + [x, y])
-
         let stone_counter = 1
         let [current_x, current_y] = [x, y]
         
@@ -124,18 +177,15 @@ class Board{
                 [x, y] = side(current_x, current_y)
 
                 while (this.gamestate[x][y] == this.currentPlayer) {
-                    stone_counter++;
+                    ++stone_counter;
 
                     [x, y] = side(x, y)
 
-                    //console.log("Contador horizontal: " + stone_counter)
-
-                    if (stone_counter == 5) break;
-
+                    console.log("Contador horizontal: " + stone_counter)
                 }
             }
 
-            if (this.checkCounter(stone_counter)) return true;
+            if (stone_counter == 5) return true;
 
             stone_counter = 1
 
@@ -144,18 +194,15 @@ class Board{
                 [x, y] = side(current_x, current_y)
 
                 while (this.gamestate[x][y] == this.currentPlayer) {
-                    stone_counter++;
+                    ++stone_counter;
 
                     [x, y] = side(x, y)
 
-                    //console.log("Contador horizontal: " + stone_counter)
-
-                    if (stone_counter == 5) break;
-
+                    console.log("Contador horizontal: " + stone_counter)
                 }
             }
 
-            if (this.checkCounter(stone_counter)) return true;
+            if (stone_counter == 5) return true;
 
             stone_counter = 1
 
@@ -164,18 +211,16 @@ class Board{
                 [x, y] = side(current_x, current_y)
 
                 while (this.gamestate[x][y] == this.currentPlayer) {
-                    stone_counter++;
-
+                    ++stone_counter;
+                    
                     [x, y] = side(x, y)
 
                     console.log("Contador da diagonal : " + stone_counter)
 
-                    if (stone_counter == 5) break;
-
                 }
             }
 
-            if (this.checkCounter(stone_counter)) return true;
+            if (stone_counter == 5) return true;
 
             stone_counter = 1
 
@@ -184,27 +229,19 @@ class Board{
                 [x, y] = side(current_x, current_y)
 
                 while (this.gamestate[x][y] == this.currentPlayer) {
-                    stone_counter++;
+                    ++stone_counter;
 
                     [x, y] = side(x, y)
 
                     console.log("Contador da diagonal secundária: " + stone_counter)
-
-                    if (stone_counter == 5) break;
-
                 }
             }
 
-            if (this.checkCounter(stone_counter)) return true;
+            if (stone_counter == 5) return true;
 
         } catch(e) {
-            console.log(e)
         }
+
     } 
-
-    checkCounter(counter) {
-        return (counter == 5)
-    }
-
 
 }
