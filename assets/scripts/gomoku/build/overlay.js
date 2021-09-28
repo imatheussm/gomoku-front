@@ -53,6 +53,8 @@ function buildNameOverlay()
     let nameInput = document.createElement('input')
     let submitButton = buildButton('btn-danger', 'name', 'Submit')
 
+    nameForm.id = 'name-form'
+
     nameInput.type = 'text'
     nameInput.className = 'form-control mb-3'
     nameInput.id = 'name-input'

@@ -38,7 +38,12 @@ export class Board
         this.overlays = buildOverlays()
 
         this.parent.append(
-            this.board.element, this.overlays.initial, this.overlays.gameMode, this.overlays.name, this.overlays.final, this.overlays.hold)
+            this.board.element,
+            this.overlays.initial,
+            this.overlays.gameMode,
+            this.overlays.name,
+            this.overlays.hold,
+            this.overlays.final)
 
         this.setBehavior()
 
@@ -54,18 +59,23 @@ export class Board
     setBehavior()
     {
         document.getElementById('play-button')
-            .addEventListener("click", () => this.showOverlay('gameMode'))
+            .addEventListener('click', () => this.showOverlay('gameMode'))
         document.getElementById('offline-button')
-            .addEventListener("click", () => this.hideOverlays(true))
+            .addEventListener('click', () => this.hideOverlays(true))
         document.getElementById('online-button')
-            .addEventListener("click", () => this.showOverlay('name'))
+            .addEventListener('click', () => this.showOverlay('name'))
+        document.getElementById('name-form')
+            .addEventListener('submit', event => {
+                event.preventDefault()
+                this.registerPlayer(event)
+            })
         document.getElementById('name-button')
-            .addEventListener("click", event => this.registerPlayer(event))
+            .addEventListener('click', event => this.registerPlayer(event))
         document.getElementById('win-button')
-            .addEventListener("click", () => this.resetBoard())
+            .addEventListener('click', () => this.resetBoard())
 
         Array.from(document.getElementsByClassName('gomoku-board-check')).forEach(button => {
-            button.addEventListener("click", event => this.checkPlace(event))
+            button.addEventListener('click', event => this.checkPlace(event))
         })
     }
 
@@ -92,13 +102,13 @@ export class Board
     /**
      *
      * @param {Event} event
+     * @param fromSocket
      */
     checkPlace(event, fromSocket = false)
     {
         let x, y, check
 
-        if (! fromSocket )
-        {
+        if (!fromSocket) {
             check = event.target
 
             let k = check.id.split(' ').map(value => parseInt(value))
@@ -109,15 +119,13 @@ export class Board
         
         if(this.online)
         {
-            if (! fromSocket ){
+            if (!fromSocket) {
                 this.socket.emit('play', {player: this.localPLayer, room: this.room, checks: [x,y]})
                 return
             }
-            else if(event.player != this.currentPlayer) return
-            else
-            {
-                x = event.checks[0]
-                y = event.checks[1]
+            else if (event.player !== this.currentPlayer) return
+            else {
+                [x, y] = [event.checks[0], event.checks[1]]
                 let checkId = event.checks.join(' ')
                 check = document.getElementById(checkId)
             }
@@ -136,21 +144,20 @@ export class Board
 
     registerPlayer(event)
     {
-        // Do something with the player's name
         this.room = document.getElementById('name-input').value
         this.socket = io("http://gomoku.ygarasab.com")
         this.socket.on('play', data => this.checkPlace(data, true))
         this.socket.on('joined', ({player}) => {
             this.online = true
             this.localPLayer = player
-            if(this.localPLayer == -1)
-                this.showOverlay('hold')
-            else
-                this.hideOverlays(true)
+
+            if(this.localPLayer === -1) this.showOverlay('hold')
+            else this.hideOverlays(true)
         })
         this.socket.on('ready', () => this.hideOverlays(true))
         this.socket.on('full', () => {
-            alert("Sala cheia")
+            alert("The room is full. Please try another room or play offline.")
+
             this.online = false
             this.localPLayer = null
             this.room = null
@@ -161,9 +168,7 @@ export class Board
         this.socket.on("connect", () => {
             if(!this.online)
                 this.socket.emit('join', this.room)
-          });
-        
-        
+        })
     }
 
     showWinner(winner)
