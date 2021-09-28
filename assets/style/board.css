@@ -8,8 +8,8 @@
     position: relative;
     width: 400px;
     height: 400px; 
-    z-index: -1;
-    background-color: #ffffff;
+    z-index: 1;
+    background-color: RGBA(255, 255, 255, .8);
     align-items: center;
     display: flex;
     justify-content: center;
@@ -19,12 +19,6 @@
 .overlay-container {
     position: relative;
     text-align: center;
-}
-
-
-#winner-text {
-    position: relative;
-    
 }
 
 .gomoku-board{
