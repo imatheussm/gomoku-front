@@ -1,11 +1,10 @@
-export function buildOverlays() {
-    return {
-        "initial": buildResetButtonOverlay('Play', 'play', 'Are you ready?'),
-        "gameMode": buildGameModeOverlay(),
-        "name": buildNameOverlay(),
-        "final": buildResetButtonOverlay('Play again', 'win', 'Someone won!')
-    }
-}
+export const buildOverlays = _ => ({
+    initial: buildResetButtonOverlay('Play', 'play', 'Are you ready?'),
+    gameMode: buildGameModeOverlay(),
+    name: buildNameOverlay(),
+    hold: buildHoldOverlay(),
+    final: buildResetButtonOverlay('Play again', 'win', 'Someone won!')
+})
 
 function buildResetButtonOverlay(buttonText, id, overlayTextContent)
 {
@@ -16,6 +15,19 @@ function buildResetButtonOverlay(buttonText, id, overlayTextContent)
     resetButtonOverlay.append(overlayText, resetButton)
 
     return resetButtonOverlay.parentElement
+}
+
+function buildHoldOverlay()
+{
+    let gameModeOverlay = buildOverlay()
+
+    let overlayText = buildOverlayText('', 'game-mode', `Waiting for other player to join`)
+
+    // multiPlayerButton.disabled = true
+
+    gameModeOverlay.append(overlayText)
+
+    return gameModeOverlay.parentElement
 }
 
 function buildGameModeOverlay()
@@ -43,7 +55,8 @@ function buildNameOverlay()
 
     nameInput.type = 'text'
     nameInput.className = 'form-control mb-3'
-    nameInput.placeholder = 'How are you called?'
+    nameInput.id = 'name-input'
+    nameInput.placeholder = "What's the room name?"
 
     nameForm.append(nameInput, submitButton)
 

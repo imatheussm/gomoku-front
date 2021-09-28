@@ -16,6 +16,12 @@ export class Board
 
         this.parent = document.getElementById(this.parentId)
         this.currentPlayer = -1
+
+        this.online = false
+        this.localPLayer = null
+        this.room = null
+        this.socket = null
+
         this.hasEverPlayed = false
 
         this.board = null
@@ -32,7 +38,7 @@ export class Board
         this.overlays = buildOverlays()
 
         this.parent.append(
-            this.board.element, this.overlays.initial, this.overlays.gameMode, this.overlays.name, this.overlays.final)
+            this.board.element, this.overlays.initial, this.overlays.gameMode, this.overlays.name, this.overlays.final, this.overlays.hold)
 
         this.setBehavior()
 
@@ -87,10 +93,36 @@ export class Board
      *
      * @param {Event} event
      */
-    checkPlace(event)
+    checkPlace(event, fromSocket = false)
     {
-        let check = event.target
-        let [x, y] = check.id.split(' ').map(value => parseInt(value))
+        let x, y, check
+
+        if (! fromSocket )
+        {
+            check = event.target
+
+            let k = check.id.split(' ').map(value => parseInt(value))
+            x = k[0]
+            y = k[1]
+        }
+        
+        
+        if(this.online)
+        {
+            if (! fromSocket ){
+                this.socket.emit('play', {player: this.localPLayer, room: this.room, checks: [x,y]})
+                return
+            }
+            else if(event.player != this.currentPlayer) return
+            else
+            {
+                x = event.checks[0]
+                y = event.checks[1]
+                let checkId = event.checks.join(' ')
+                check = document.getElementById(checkId)
+            }
+        }
+        
 
         if (this.board.gameState[x][y]) return
 
@@ -105,8 +137,33 @@ export class Board
     registerPlayer(event)
     {
         // Do something with the player's name
-
-        this.hideOverlays(true)
+        this.room = document.getElementById('name-input').value
+        this.socket = io("http://gomoku.ygarasab.com")
+        this.socket.on('play', data => this.checkPlace(data, true))
+        this.socket.on('joined', ({player}) => {
+            this.online = true
+            this.localPLayer = player
+            if(this.localPLayer == -1)
+                this.showOverlay('hold')
+            else
+                this.hideOverlays(true)
+        })
+        this.socket.on('ready', () => this.hideOverlays(true))
+        this.socket.on('full', () => {
+            alert("Sala cheia")
+            this.online = false
+            this.localPLayer = null
+            this.room = null
+            this.socket.close()
+            this.socket = null
+            this.showOverlay('gameMode')
+        })
+        this.socket.on("connect", () => {
+            if(!this.online)
+                this.socket.emit('join', this.room)
+          });
+        
+        
     }
 
     showWinner(winner)
