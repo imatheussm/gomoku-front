@@ -145,7 +145,7 @@ export class Board
     registerPlayer(event)
     {
         this.room = document.getElementById('name-input').value
-        this.socket = io("http://gomoku.ygarasab.com")
+        this.socket = io("https://gomokuws.ygarasab.com")
         this.socket.on('play', data => this.checkPlace(data, true))
         this.socket.on('joined', ({player}) => {
             this.online = true
