@@ -16,6 +16,7 @@ export class Board
 
         this.parent = document.getElementById(this.parentId)
         this.currentPlayer = -1
+        this.currentPiece = 0
 
         this.online = false
         this.localPLayer = null
@@ -28,6 +29,9 @@ export class Board
         this.overlays = null
 
         this.resetBoard()
+
+        document.getElementById('theme-button')
+            .addEventListener('change', () => this.updateTheme())
     }
 
     resetBoard()
@@ -46,6 +50,9 @@ export class Board
             this.overlays.final)
 
         this.setBehavior()
+
+        this.currentPlayer = -1
+        this.currentPiece = 0
 
         if (!this.hasEverPlayed) {
             this.showOverlay('initial')
@@ -67,16 +74,30 @@ export class Board
         document.getElementById('name-form')
             .addEventListener('submit', event => {
                 event.preventDefault()
-                this.registerPlayer(event)
+                this.registerPlayer()
             })
         document.getElementById('name-button')
-            .addEventListener('click', event => this.registerPlayer(event))
+            .addEventListener('click', () => this.registerPlayer())
         document.getElementById('win-button')
             .addEventListener('click', () => this.resetBoard())
 
         Array.from(document.getElementsByClassName('gomoku-board-check')).forEach(button => {
             button.addEventListener('click', event => this.checkPlace(event))
         })
+    }
+
+    updateTheme() {
+        let themeStylesheets = document.getElementsByClassName("theme-stylesheet")
+        let boardStylesheets = document.getElementsByClassName("board-stylesheet")
+        let isDark = document.getElementById("theme-button").checked
+        let newThemeStylesheet = `assets/style/bootstrap-5.1.1${isDark? "-night" : ""}.min.css`
+        let newBoardStylesheet = `assets/style/board${isDark? "-night" : ""}.css`
+
+        for (let i = 0; i < themeStylesheets.length; i++) themeStylesheets.item(i)
+            .setAttribute("href", newThemeStylesheet)
+
+        for (let i = 0; i < boardStylesheets.length; i++) boardStylesheets.item(i)
+            .setAttribute("href", newBoardStylesheet)
     }
 
     showOverlay(overlayName)
@@ -135,14 +156,17 @@ export class Board
         if (this.board.gameState[x][y]) return
 
         this.board.gameState[x][y] = this.currentPlayer
+
         check.className += this.currentPlayer === -1 ? ' blue' : ' red'
+        check.setAttribute("check-number",
+            ++this.currentPiece < 10 ? "0" + this.currentPiece : this.currentPiece);
 
         if (this.didGameEnd([x, y])) this.showWinner(this.currentPlayer < 0 ? ' blue' : ' red')
 
         this.currentPlayer = -this.currentPlayer
     }
 
-    registerPlayer(event)
+    registerPlayer()
     {
         this.room = document.getElementById('name-input').value
         this.socket = io("https://gomokuws.ygarasab.com")
