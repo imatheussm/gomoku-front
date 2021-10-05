@@ -55,36 +55,36 @@ export class Board
         this.currentPiece = 0
 
         if (!this.hasEverPlayed) {
-            this.showOverlay('initial')
+            this.showOverlay("initial")
 
             this.hasEverPlayed = true
         } else {
-            this.showOverlay('gameMode')
+            this.showOverlay("gameMode")
         }
     }
 
     setBehavior()
     {
-        document.getElementById('play-button')
-            .addEventListener('click', () => this.showOverlay('gameMode'))
-        document.getElementById('offline-button')
-            .addEventListener('click', () => this.hideOverlays(true))
-        document.getElementById('online-button')
-            .addEventListener('click', () => this.showOverlay('name'))
-        document.getElementById('name-form')
-            .addEventListener('submit', event => {
+        document.getElementById("play-button")
+            .addEventListener("click", () => this.showOverlay("gameMode"))
+        document.getElementById("offline-button")
+            .addEventListener("click", () => this.hideOverlays(true))
+        document.getElementById("online-button")
+            .addEventListener("click", () => this.showOverlay("name"))
+        document.getElementById("name-form")
+            .addEventListener("submit", event => {
                 event.preventDefault()
                 this.registerPlayer()
             })
-        document.getElementById('name-button')
-            .addEventListener('click', () => this.registerPlayer())
-        document.getElementById('win-button')
-            .addEventListener('click', () => this.resetBoard())
-        document.getElementById('again-button')
-            .addEventListener('click', () => this.resetBoard())
+        document.getElementById("name-button")
+            .addEventListener("click", () => this.registerPlayer())
+        document.getElementById("win-button")
+            .addEventListener("click", () => this.resetBoard())
+        document.getElementById("again-button")
+            .addEventListener("click", () => this.resetBoard())
 
-        Array.from(document.getElementsByClassName('gomoku-board-check')).forEach(button => {
-            button.addEventListener('click', event => this.checkPlace(event))
+        Array.from(document.getElementsByClassName("gomoku-board-check")).forEach(button => {
+            button.addEventListener("click", event => this.checkPlace(event))
         })
     }
 
@@ -92,19 +92,19 @@ export class Board
         let themeSwitch = document.getElementById("theme-switch")
         themeSwitch.disabled = false
 
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
             themeSwitch.checked = true
         }
 
-        document.getElementById('theme-switch')
-            .addEventListener('change', () => this.updateTheme())
+        document.getElementById("theme-switch")
+            .addEventListener("change", () => this.updateTheme())
 
         this.updateTheme()
     }
 
     updateTheme() {
         let themeStylesheets = document.getElementsByClassName("theme-stylesheet")
-        let boardStylesheets = document.getElementsByClassName("board-stylesheet")
+        let overlays = document.getElementsByClassName("overlay")
         let isDark = document.getElementById("theme-switch").checked ? "-night" : ""
 
         let newThemeStylesheet = `assets/style/bootstrap-5.1.1${isDark}.min.css`
@@ -115,31 +115,35 @@ export class Board
         document.getElementById("logo-image").setAttribute("src", newLogoImage)
         document.getElementById("github-image").setAttribute("src", newGitHubImage)
 
+        for (let i = 0; i < overlays.length; i++) {
+            let overlay = overlays.item(i)
+
+            isDark ? overlay.classList.add("overlay-night") : overlay.classList.remove("overlay-night")
+        }
+
         for (let i = 0; i < themeStylesheets.length; i++) themeStylesheets.item(i)
             .setAttribute("href", newThemeStylesheet)
-
-        for (let i = 0; i < boardStylesheets.length; i++) boardStylesheets.item(i)
-            .setAttribute("href", newBoardStylesheet)
     }
 
     showOverlay(overlayName)
     {
         this.hideOverlays()
 
-        this.overlays[`${overlayName}`].style.cssText = `
-            display: flex;
-            visibility: visible;
-        `
+        this.overlays[overlayName].classList.add("d-flex", "visible")
+        this.overlays[overlayName].classList.remove("d-none", "invisible")
     }
 
     hideOverlays(isBeginningMatch = false)
     {
-        for (let overlay in this.overlays) this.overlays[overlay].style.cssText = `
-            display: none;
-            visibility: hidden;
-        `
+        for (let overlay in this.overlays) {
+            this.overlays[overlay].classList.add("d-none", "invisible")
+            this.overlays[overlay].classList.remove("d-flex", "visible")
+        }
 
-        if (isBeginningMatch) this.overlays.final.style.display = 'flex'
+        if (isBeginningMatch) {
+            this.overlays.final.classList.add("d-flex")
+            this.overlays.final.classList.remove("d-none")
+        }
     }
 
     /**
@@ -154,7 +158,7 @@ export class Board
         if (!fromSocket) {
             check = event.target
 
-            let k = check.id.split(' ').map(value => parseInt(value))
+            let k = check.id.split(" ").map(value => parseInt(value))
             x = k[0]
             y = k[1]
         }
@@ -163,13 +167,13 @@ export class Board
         if(this.online)
         {
             if (!fromSocket) {
-                this.socket.emit('play', {player: this.localPLayer, room: this.room, checks: [x,y]})
+                this.socket.emit("play", {player: this.localPLayer, room: this.room, checks: [x,y]})
                 return
             }
             else if (event.player !== this.currentPlayer) return
             else {
                 [x, y] = [event.checks[0], event.checks[1]]
-                let checkId = event.checks.join(' ')
+                let checkId = event.checks.join(" ")
                 check = document.getElementById(checkId)
             }
         }
@@ -179,30 +183,30 @@ export class Board
 
         this.board.gameState[x][y] = this.currentPlayer
 
-        check.className += this.currentPlayer === -1 ? ' blue' : ' red'
+        check.classList.add(this.currentPlayer === -1 ? "bg-primary" : "bg-danger")
         check.setAttribute("check-number",
             ++this.currentPiece < 10 ? "0" + this.currentPiece : this.currentPiece);
 
-        if (this.didGameEnd([x, y])) this.showWinner(this.currentPlayer < 0 ? ' blue' : ' red')
+        if (this.didGameEnd([x, y])) this.showWinner(this.currentPlayer < 0 ? " blue" : " red")
 
         this.currentPlayer = -this.currentPlayer
     }
 
     registerPlayer()
     {
-        this.room = document.getElementById('name-input').value
+        this.room = document.getElementById("name-input").value
         this.socket = io("https://gomokuws.ygarasab.com")
         this.socket
-            .on('play', data => this.checkPlace(data, true))
-            .on('joined', ({player}) => {
+            .on("play", data => this.checkPlace(data, true))
+            .on("joined", ({player}) => {
                 this.online = true
                 this.localPLayer = player
 
-                if(this.localPLayer === -1) this.showOverlay('hold')
+                if(this.localPLayer === -1) this.showOverlay("hold")
                 else this.hideOverlays(true)
             })
-            .on('ready', () => this.hideOverlays(true))
-            .on('full', () => {
+            .on("ready", () => this.hideOverlays(true))
+            .on("full", () => {
                 alert("The room is full. Please try another room or play offline.")
 
                 this.online = false
@@ -210,19 +214,19 @@ export class Board
                 this.room = null
                 this.socket.close()
                 this.socket = null
-                this.showOverlay('gameMode')
+                this.showOverlay("gameMode")
             })
             .on("connect", () => {
                 if(!this.online)
-                    this.socket.emit('join', this.room)
+                    this.socket.emit("join", this.room)
             })
-            .on("left", ()=> this.showOverlay('left'))
+            .on("left", ()=> this.showOverlay("left"))
     }
 
     showWinner(winner)
     {
         document.getElementById("win-text").innerHTML = `Player ${winner} won!`
-        this.showOverlay('final')
+        this.showOverlay("final")
     }
 
     didGameEnd(position)

@@ -1,18 +1,18 @@
-.index-container {
-    position: relative;
-    text-align: center;
-    justify-content: center;
+.overlay, .overlay-container, #gomoku-board {
+    max-width: 400px;
+}
+
+.overlay, #gomoku-board {
+    height: 400px;
 }
 
 .overlay {
-    position: relative;
-    width: 400px;
-    height: 400px; 
     z-index: 1;
-    background-color: RGBA(255,255,255,.8);
-    align-items: center;
-    display: flex;
-    justify-content: center;
+    background-color: RGBA(255, 255, 255, .8);
+}
+
+.overlay-night {
+    background-color: RGBA(34, 34, 34, .8)!important;
 }
 
 #github-image {
@@ -20,20 +20,7 @@
     height: 30px;
 }
 
-.overlay-container {
-    position: relative;
-    text-align: center;
-}
-
-.gomoku-board{
-    position: absolute;
-    display: grid;
-    width: 400px;
-    height: 400px;
-}
-
-.gomoku-board-check{
-    position: relative;
+.gomoku-board-check {
     border-radius: 10px;
     background-color: var(--bs-gray-600);
     width: 90%;
@@ -41,15 +28,7 @@
     padding: 2.5%;
 }
 
-.red{
-    background-color: var(--bs-red);
-}
-
-.blue{
-    background-color: var(--bs-blue);
-}
-
-.gomoku-board-check.blue::after, .gomoku-board-check.red::after {
+.gomoku-board-check.bg-primary::after, .gomoku-board-check.bg-danger::after {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -57,4 +36,16 @@
     margin-left: -23%;
     color: var(--bs-gray-200);
     margin-top: -33%;
+}
+
+.bg-primary, .bg-danger {
+    --bs-bg-opacity: 1;
+}
+
+.bg-danger {
+    background-color: rgba(var(--bs-danger-rgb),var(--bs-bg-opacity))!important;
+}
+
+.bg-primary {
+    background-color: rgba(var(--bs-primary-rgb),var(--bs-bg-opacity))!important;
 }

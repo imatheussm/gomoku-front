@@ -73,11 +73,9 @@ function buildOverlay()
     let overlay = document.createElement('div')
     let overlayContainer = document.createElement('div')
 
-    overlay.className = 'overlay'
-    overlay.style.visibility = 'hidden'
-    overlay.style.display = 'none'
+    overlay.className = 'overlay position-relative justify-content-center align-items-center d-none invisible'
     overlay.style.zIndex = '1'
-    overlayContainer.className = 'overlay-container'
+    overlayContainer.className = 'position-relative text-center'
 
     overlay.appendChild(overlayContainer)
 
