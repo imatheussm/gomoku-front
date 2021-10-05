@@ -90,8 +90,12 @@ export class Board
         let themeStylesheets = document.getElementsByClassName("theme-stylesheet")
         let boardStylesheets = document.getElementsByClassName("board-stylesheet")
         let isDark = document.getElementById("theme-button").checked
+
         let newThemeStylesheet = `assets/style/bootstrap-5.1.1${isDark? "-night" : ""}.min.css`
-        let newBoardStylesheet = `assets/style/board${isDark? "-night" : ""}.css`
+        let newBoardStylesheet = `assets/style/board${isDark ? "-night" : ""}.css`
+        let newLogoImage = `assets/images/gomoku-logo${isDark ? "-night" : ""}.png`
+
+        document.getElementById("logo-image").setAttribute("src", newLogoImage)
 
         for (let i = 0; i < themeStylesheets.length; i++) themeStylesheets.item(i)
             .setAttribute("href", newThemeStylesheet)
