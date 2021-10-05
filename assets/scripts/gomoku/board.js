@@ -30,8 +30,7 @@ export class Board
 
         this.resetBoard()
 
-        document.getElementById('theme-button')
-            .addEventListener('change', () => this.updateTheme())
+        this.initializeThemeSwitch()
     }
 
     resetBoard()
@@ -89,10 +88,24 @@ export class Board
         })
     }
 
+    initializeThemeSwitch() {
+        let themeSwitch = document.getElementById("theme-switch")
+        themeSwitch.disabled = false
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            themeSwitch.checked = true
+        }
+
+        document.getElementById('theme-switch')
+            .addEventListener('change', () => this.updateTheme())
+
+        this.updateTheme()
+    }
+
     updateTheme() {
         let themeStylesheets = document.getElementsByClassName("theme-stylesheet")
         let boardStylesheets = document.getElementsByClassName("board-stylesheet")
-        let isDark = document.getElementById("theme-button").checked ? "-night" : ""
+        let isDark = document.getElementById("theme-switch").checked ? "-night" : ""
 
         let newThemeStylesheet = `assets/style/bootstrap-5.1.1${isDark}.min.css`
         let newBoardStylesheet = `assets/style/board${isDark}.css`
