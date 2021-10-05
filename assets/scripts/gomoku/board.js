@@ -47,7 +47,8 @@ export class Board
             this.overlays.gameMode,
             this.overlays.name,
             this.overlays.hold,
-            this.overlays.final)
+            this.overlays.final,
+            this.overlays.left)
 
         this.setBehavior()
 
@@ -79,6 +80,8 @@ export class Board
         document.getElementById('name-button')
             .addEventListener('click', () => this.registerPlayer())
         document.getElementById('win-button')
+            .addEventListener('click', () => this.resetBoard())
+        document.getElementById('again-button')
             .addEventListener('click', () => this.resetBoard())
 
         Array.from(document.getElementsByClassName('gomoku-board-check')).forEach(button => {
@@ -170,29 +173,31 @@ export class Board
     {
         this.room = document.getElementById('name-input').value
         this.socket = io("https://gomokuws.ygarasab.com")
-        this.socket.on('play', data => this.checkPlace(data, true))
-        this.socket.on('joined', ({player}) => {
-            this.online = true
-            this.localPLayer = player
+        this.socket
+            .on('play', data => this.checkPlace(data, true))
+            .on('joined', ({player}) => {
+                this.online = true
+                this.localPLayer = player
 
-            if(this.localPLayer === -1) this.showOverlay('hold')
-            else this.hideOverlays(true)
-        })
-        this.socket.on('ready', () => this.hideOverlays(true))
-        this.socket.on('full', () => {
-            alert("The room is full. Please try another room or play offline.")
+                if(this.localPLayer === -1) this.showOverlay('hold')
+                else this.hideOverlays(true)
+            })
+            .on('ready', () => this.hideOverlays(true))
+            .on('full', () => {
+                alert("The room is full. Please try another room or play offline.")
 
-            this.online = false
-            this.localPLayer = null
-            this.room = null
-            this.socket.close()
-            this.socket = null
-            this.showOverlay('gameMode')
-        })
-        this.socket.on("connect", () => {
-            if(!this.online)
-                this.socket.emit('join', this.room)
-        })
+                this.online = false
+                this.localPLayer = null
+                this.room = null
+                this.socket.close()
+                this.socket = null
+                this.showOverlay('gameMode')
+            })
+            .on("connect", () => {
+                if(!this.online)
+                    this.socket.emit('join', this.room)
+            })
+            .on("left", ()=> this.showOverlay('left'))
     }
 
     showWinner(winner)

@@ -3,7 +3,8 @@ export const buildOverlays = _ => ({
     gameMode: buildGameModeOverlay(),
     name: buildNameOverlay(),
     hold: buildHoldOverlay(),
-    final: buildResetButtonOverlay('Play again', 'win', 'Someone won!')
+    final: buildResetButtonOverlay('Play again', 'win', 'Someone won!'),
+    left: buildResetButtonOverlay('Play again', 'again', 'Your friend has disconnected!')
 })
 
 function buildResetButtonOverlay(buttonText, id, overlayTextContent)
