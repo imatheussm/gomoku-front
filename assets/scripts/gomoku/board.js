@@ -101,6 +101,8 @@ export class Board
             .addEventListener("click", () => this.registerPlayer())
         document.getElementById("reset-button")
             .addEventListener("click", () => this.resetBoard(true, false))
+        document.getElementById("cancel-button")
+            .addEventListener("click", () => this.toggleMode())
         document.getElementById("toggle-button")
             .addEventListener("click", () => this.toggleMode())
 

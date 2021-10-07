@@ -34,8 +34,9 @@ function buildHoldOverlay()
     let gameModeOverlay = buildOverlay()
 
     let overlayText = buildOverlayText("", "game-mode", `Waiting for other player to join`)
+    let cancelButton = buildButton("btn btn-primary", "cancel", "Go offline")
 
-    gameModeOverlay.append(overlayText)
+    gameModeOverlay.append(overlayText, cancelButton)
 
     return gameModeOverlay.parentElement
 }
