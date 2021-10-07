@@ -6,6 +6,10 @@
     height: 400px;
 }
 
+#logo-image {
+    height: 50px;
+}
+
 .overlay {
     z-index: 1;
     background-color: RGBA(255, 255, 255, .8);

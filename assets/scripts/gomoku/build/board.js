@@ -27,3 +27,16 @@ export function buildBoard(side)
         "gameState": gameState
     }
 }
+
+export function buildVisitedMatrix(side)
+{
+    let matrix = []
+
+    for (let i = 0; i < side; i++) {
+        matrix.push([])
+
+        for (let j = 0; j < side; j++) matrix[i].push(false)
+    }
+
+    return matrix
+}

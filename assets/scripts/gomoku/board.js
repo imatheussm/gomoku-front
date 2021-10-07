@@ -1,5 +1,16 @@
-import {buildBoard} from "./build/board.js"
+import {buildBoard, buildVisitedMatrix} from "./build/board.js"
 import {buildOverlays} from "./build/overlay.js"
+
+const DIRECTIONS = {
+    "UPPER LEFT": [-1, -1],
+    "UP": [0, -1],
+    "UPPER RIGHT": [1, -1],
+    "LEFT": [-1, 0],
+    "RIGHT": [1, 0],
+    "LOWER LEFT": [-1, 1],
+    "DOWN": [0, 1],
+    "LOWER RIGHT": [1, 1]
+}
 
 export class Board
 {
@@ -27,6 +38,7 @@ export class Board
 
         this.board = null
         this.overlays = null
+        this.visited = null
 
         this.resetBoard()
 
@@ -229,119 +241,44 @@ export class Board
         this.showOverlay("final")
     }
 
-    didGameEnd(position)
-    {
-        let [x, y] = position
+    didGameEnd(position, count = 0, direction = null) {
+        if (count === 0) {
+            let [x, y] = position
 
-        const horizontal_sides = {
-            right(x, y) {
-                return [x, ++y]
-            },
-            left(x, y) {
-                return [x, --y]
-            }
+            this.visited = buildVisitedMatrix(this.side)
+            this.visited[x][y] = true
+
+            let scores = [
+                // Main diagonal
+                this.didGameEnd(position, count + 1, "UPPER LEFT")
+                    + this.didGameEnd(position, count + 1, "LOWER RIGHT"),
+                // Secondary diagonal
+                this.didGameEnd(position, count + 1, "LOWER LEFT")
+                    + this.didGameEnd(position, count + 1, "UPPER RIGHT"),
+                // Horizontal axis
+                this.didGameEnd(position, count + 1, "LEFT")
+                    + this.didGameEnd(position, count + 1, "RIGHT"),
+                // Vertical axis
+                this.didGameEnd(position, count + 1, "UP")
+                    + this.didGameEnd(position, count + 1, "DOWN")
+            ]
+
+            for (const score of scores) if (score + 1 === 5) return true
+
+            return false
         }
+        else {
+            let delta = DIRECTIONS[direction]
+            let [x, y] = [position[0] + delta[0], position[1] + delta[1]]
 
-        const vertical_sides = {
-            top(x, y) {
-                return [--x, y]
-            },
-            bottom(x, y) {
-                return [++x, y]
-            }
-        }
+            if (x < 0 || x === this.side
+                || y < 0 || y === this.side
+                || this.visited[x][y]
+                || this.board.gameState[x][y] !== this.currentPlayer) return count - 1
 
-        const main_diagonal = {
-            diagonal_left_top(x, y) {
-                return [--x, --y]
-            },
-            diagonal_right_bottom(x, y) {
-                return [++x, ++y]
-            }
+            this.visited[x][y] = true
 
-        }
-
-        const secondary_diagonal = {
-            diagonal_right_top(x, y) {
-                return [--x, ++y]
-            },
-            diagonal_left_bottom(x, y) {
-                return [++x, --y]
-            }
-        }
-
-        let stone_counter = 1
-        let [current_x, current_y] = [x, y]
-
-        try {
-            // Checking horizontal sides (left and right)
-            for (let side of Object.values(horizontal_sides)) {
-                [x, y] = side(current_x, current_y)
-
-                while (this.board.gameState[x][y] === this.currentPlayer) {
-                    ++stone_counter;
-
-                    [x, y] = side(x, y)
-
-                    console.log("Contador horizontal: " + stone_counter)
-                }
-            }
-
-            if (stone_counter === 5) return true
-
-            stone_counter = 1
-
-            // Checking vertical sides (top and bottom)
-            for (let side of Object.values(vertical_sides)) {
-                [x, y] = side(current_x, current_y)
-
-                while (this.board.gameState[x][y] === this.currentPlayer) {
-                    ++stone_counter;
-
-                    [x, y] = side(x, y)
-
-                    console.log("Contador horizontal: " + stone_counter)
-                }
-            }
-
-            if (stone_counter === 5) return true
-
-            stone_counter = 1
-
-            // Checking main diagonal sides
-            for (let side of Object.values(main_diagonal)) {
-                [x, y] = side(current_x, current_y)
-
-                while (this.board.gameState[x][y] === this.currentPlayer) {
-                    ++stone_counter;
-
-                    [x, y] = side(x, y)
-
-                    console.log("Contador da diagonal : " + stone_counter)
-
-                }
-            }
-
-            if (stone_counter === 5) return true
-
-            stone_counter = 1
-
-            // Checking secondary diagonal sides
-            for (let side of Object.values(secondary_diagonal)) {
-                [x, y] = side(current_x, current_y)
-
-                while (this.board.gameState[x][y] === this.currentPlayer) {
-                    ++stone_counter;
-
-                    [x, y] = side(x, y)
-
-                    console.log("Contador da diagonal secundária: " + stone_counter)
-                }
-            }
-
-            if (stone_counter === 5) return true
-
-        } catch(e) {
+            return this.didGameEnd([x, y], count + 1,  direction)
         }
     }
 }
