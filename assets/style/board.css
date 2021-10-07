@@ -50,6 +50,14 @@
     background-color: rgba(var(--bs-danger-rgb),var(--bs-bg-opacity))!important;
 }
 
+.text-danger {
+    color: rgb(var(--bs-danger-rgb))!important;
+}
+
 .bg-primary {
     background-color: rgba(var(--bs-primary-rgb),var(--bs-bg-opacity))!important;
+}
+
+.text-primary {
+    color: rgb(var(--bs-primary-rgb))!important;
 }

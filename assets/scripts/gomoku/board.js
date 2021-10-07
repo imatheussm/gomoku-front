@@ -58,6 +58,7 @@ export class Board
             this.overlays.name,
             this.overlays.hold,
             this.overlays.final)
+        this.updateTheme()
 
         if (resetScore) this.resetScore()
 
