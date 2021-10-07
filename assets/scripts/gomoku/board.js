@@ -40,11 +40,11 @@ export class Board
         this.overlays = null
         this.visited = null
 
-        this.resetBoard()
+        this.resetBoard(false, false)
         this.initializeThemeSwitch()
     }
 
-    resetBoard(beginMatchAfterwards = false)
+    resetBoard(beginMatchAfterwards, resetScore)
     {
         while (this.parent.firstChild) this.parent.firstChild.remove()
 
@@ -58,6 +58,8 @@ export class Board
             this.overlays.name,
             this.overlays.hold,
             this.overlays.final)
+
+        if (resetScore) this.resetScore()
 
         this.setBehavior()
 
@@ -73,6 +75,12 @@ export class Board
         } else {
             this.showOverlay("gameMode")
         }
+    }
+
+    resetScore()
+    {
+        document.getElementById("blue-score-text").innerHTML = "0"
+        document.getElementById("red-score-text").innerHTML = "0"
     }
 
     setBehavior()
@@ -91,7 +99,7 @@ export class Board
         document.getElementById("name-button")
             .addEventListener("click", () => this.registerPlayer())
         document.getElementById("reset-button")
-            .addEventListener("click", () => this.resetBoard(true))
+            .addEventListener("click", () => this.resetBoard(true, false))
         document.getElementById("toggle-button")
             .addEventListener("click", () => this.toggleMode())
 
@@ -102,7 +110,8 @@ export class Board
 
     toggleMode()
     {
-        this.resetBoard()
+        document.getElementById("score-text").classList.add("invisible")
+        this.resetBoard(false, true)
 
         if (this.online) {
             this.unregisterPlayer()
@@ -168,6 +177,8 @@ export class Board
         if (isBeginningMatch) {
             this.overlays.final.classList.add("d-flex")
             this.overlays.final.classList.remove("d-none")
+
+            document.getElementById("score-text").classList.remove("invisible")
         }
     }
 
@@ -188,13 +199,11 @@ export class Board
             y = k[1]
         }
         
-        if(this.online)
-        {
+        if(this.online) {
             if (!fromSocket) {
-                this.socket.emit("play", {player: this.localPLayer, room: this.room, checks: [x,y]})
+                this.socket.emit("play", {player: this.localPLayer, room: this.room, checks: [x, y]})
                 return
-            }
-            else if (event.player !== this.currentPlayer) return
+            } else if (event.player !== this.currentPlayer) return
             else {
                 [x, y] = [event.checks[0], event.checks[1]]
                 let checkId = event.checks.join(" ")
@@ -210,8 +219,13 @@ export class Board
         check.setAttribute("check-number",
             ++this.currentPiece < 10 ? "0" + this.currentPiece : this.currentPiece);
 
-        if (this.didGameEnd([x, y]))
+        if (this.didGameEnd([x, y])) {
+            let winnerScoreText =
+                document.getElementById(`${this.currentPlayer < 0 ? "blue" : "red"}-score-text`)
+            winnerScoreText.innerHTML = `${parseInt(winnerScoreText.innerHTML) + 1}`
+
             this.showFinalOverlay(`Player ${this.currentPlayer < 0 ? "blue" : "red"} won!`)
+        }
 
         this.currentPlayer = -this.currentPlayer
     }
