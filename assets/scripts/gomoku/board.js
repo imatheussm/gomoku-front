@@ -58,6 +58,9 @@ export class Board
         this.currentPlayer = -1
         this.currentPiece = 0
 
+        document.getElementById("blue-text").classList.add("fw-bold")
+        document.getElementById("red-text").classList.remove("fw-bold")
+
         if (resetScore) this.resetScore()
         if (this.online) this.updateOnlineBoardStatus()
 
@@ -190,6 +193,8 @@ export class Board
 
     checkPlace(event, fromSocket = false)
     {
+        let currentPlayer = document.getElementById(`${this.currentPlayer === -1 ? "red" : "blue"}-text`)
+        let nextPlayer = document.getElementById(`${this.currentPlayer === -1 ? "blue" : "red"}-text`)
         let x, y, check
 
         if (!fromSocket) {
@@ -227,6 +232,9 @@ export class Board
 
             this.showFinalOverlay(`Player ${this.currentPlayer < 0 ? "blue" : "red"} won!`)
         }
+
+        currentPlayer.classList.add("fw-bold")
+        nextPlayer.classList.remove("fw-bold")
 
         this.currentPlayer = -this.currentPlayer
     }
