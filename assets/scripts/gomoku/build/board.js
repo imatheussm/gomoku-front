@@ -5,7 +5,7 @@ export function buildBoard(side)
 
     board.classList.add("d-grid", "position-absolute")
     board.id = "gomoku-board"
-    board.style.gridTemplateColumns = `repeat(auto-fill, 40px)`
+    board.style.gridTemplateColumns = `auto `.repeat(side)
 
     for (let i = 0; i < side; i++) {
         gameState.push([])

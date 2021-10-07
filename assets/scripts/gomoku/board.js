@@ -41,11 +41,10 @@ export class Board
         this.visited = null
 
         this.resetBoard()
-
         this.initializeThemeSwitch()
     }
 
-    resetBoard()
+    resetBoard(beginMatchAfterwards = false)
     {
         while (this.parent.firstChild) this.parent.firstChild.remove()
 
@@ -58,15 +57,16 @@ export class Board
             this.overlays.gameMode,
             this.overlays.name,
             this.overlays.hold,
-            this.overlays.final,
-            this.overlays.left)
+            this.overlays.final)
 
         this.setBehavior()
 
         this.currentPlayer = -1
         this.currentPiece = 0
 
-        if (!this.hasEverPlayed) {
+        if (beginMatchAfterwards) {
+            this.hideOverlays(true)
+        } else if (!this.hasEverPlayed) {
             this.showOverlay("initial")
 
             this.hasEverPlayed = true
@@ -90,17 +90,30 @@ export class Board
             })
         document.getElementById("name-button")
             .addEventListener("click", () => this.registerPlayer())
-        document.getElementById("win-button")
-            .addEventListener("click", () => this.resetBoard())
-        document.getElementById("again-button")
-            .addEventListener("click", () => this.resetBoard())
+        document.getElementById("reset-button")
+            .addEventListener("click", () => this.resetBoard(true))
+        document.getElementById("toggle-button")
+            .addEventListener("click", () => this.toggleMode())
 
         Array.from(document.getElementsByClassName("gomoku-board-check")).forEach(button => {
             button.addEventListener("click", event => this.checkPlace(event))
         })
     }
 
-    initializeThemeSwitch() {
+    toggleMode()
+    {
+        this.resetBoard()
+
+        if (this.online) {
+            this.unregisterPlayer()
+            this.hideOverlays(true)
+        } else {
+            this.showOverlay("name")
+        }
+    }
+
+    initializeThemeSwitch()
+    {
         let themeSwitch = document.getElementById("theme-switch")
         themeSwitch.disabled = false
 
@@ -114,13 +127,13 @@ export class Board
         this.updateTheme()
     }
 
-    updateTheme() {
+    updateTheme()
+    {
         let themeStylesheets = document.getElementsByClassName("theme-stylesheet")
         let overlays = document.getElementsByClassName("overlay")
         let isDark = document.getElementById("theme-switch").checked ? "-night" : ""
 
         let newThemeStylesheet = `assets/style/bootstrap-5.1.1${isDark}.min.css`
-        let newBoardStylesheet = `assets/style/board${isDark}.css`
         let newLogoImage = `assets/images/gomoku-logo${isDark}.png`
         let newGitHubImage = `assets/images/github-logo${isDark}.png`
 
@@ -175,7 +188,6 @@ export class Board
             y = k[1]
         }
         
-        
         if(this.online)
         {
             if (!fromSocket) {
@@ -189,7 +201,6 @@ export class Board
                 check = document.getElementById(checkId)
             }
         }
-        
 
         if (this.board.gameState[x][y]) return
 
@@ -199,7 +210,8 @@ export class Board
         check.setAttribute("check-number",
             ++this.currentPiece < 10 ? "0" + this.currentPiece : this.currentPiece);
 
-        if (this.didGameEnd([x, y])) this.showWinner(this.currentPlayer < 0 ? " blue" : " red")
+        if (this.didGameEnd([x, y]))
+            this.showFinalOverlay(`Player ${this.currentPlayer < 0 ? "blue" : "red"} won!`)
 
         this.currentPlayer = -this.currentPlayer
     }
@@ -220,28 +232,43 @@ export class Board
             .on("ready", () => this.hideOverlays(true))
             .on("full", () => {
                 alert("The room is full. Please try another room or play offline.")
-
-                this.online = false
-                this.localPLayer = null
-                this.room = null
-                this.socket.close()
-                this.socket = null
+                this.unregisterPlayer()
                 this.showOverlay("gameMode")
             })
             .on("connect", () => {
-                if(!this.online)
-                    this.socket.emit("join", this.room)
+                if(!this.online) this.socket.emit("join", this.room)
             })
-            .on("left", ()=> this.showOverlay("left"))
+            .on("left", () => {
+                this.showFinalOverlay(
+                    `Player ${this.currentPlayer < 0 ? "red" : "blue"} has disconnected!`, true)
+            })
     }
 
-    showWinner(winner)
+    unregisterPlayer()
     {
-        document.getElementById("win-text").innerHTML = `Player ${winner} won!`
+        this.online = false
+        this.localPLayer = null
+        this.room = null
+        this.socket.close()
+        this.socket = null
+    }
+
+    showFinalOverlay(message, hidePlayButton = false)
+    {
+        let resetButton = document.getElementById("reset-button")
+
+        document.getElementById("final-text").innerHTML = message
+        document.getElementById("toggle-button").innerHTML =
+            this.online ? "Go offline" : "Go online"
+
+        if (hidePlayButton) resetButton.classList.add("d-none")
+        else resetButton.classList.remove("d-none")
+
         this.showOverlay("final")
     }
 
-    didGameEnd(position, count = 0, direction = null) {
+    didGameEnd(position, count = 0, direction = null)
+    {
         if (count === 0) {
             let [x, y] = position
 
