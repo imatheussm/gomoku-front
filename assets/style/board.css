@@ -30,6 +30,12 @@
     width: 90%;
     height: 90%;
     padding: 2.5%;
+    cursor: pointer;
+}
+
+.gomoku-board-check.disabled {
+    background-color: var(--bs-gray-500);
+    cursor: default;
 }
 
 .gomoku-board-check.bg-primary::after, .gomoku-board-check.bg-danger::after {

@@ -15,11 +15,6 @@ const DIRECTIONS = {
 export class Board
 {
 
-    /**
-     *
-     * @param parentId
-     * @param {Number} side
-     */
     constructor(parentId, side)
     {
         this.parentId = parentId
@@ -60,12 +55,13 @@ export class Board
             this.overlays.final)
         this.updateTheme()
 
-        if (resetScore) this.resetScore()
-
-        this.setBehavior()
-
         this.currentPlayer = -1
         this.currentPiece = 0
+
+        if (resetScore) this.resetScore()
+        if (this.online) this.updateOnlineBoardStatus()
+
+        this.setBehavior()
 
         if (beginMatchAfterwards) {
             this.hideOverlays(true)
@@ -185,11 +181,6 @@ export class Board
         }
     }
 
-    /**
-     *
-     * @param {Event} event
-     * @param fromSocket
-     */
     checkPlace(event, fromSocket = false)
     {
         let x, y, check
@@ -201,8 +192,8 @@ export class Board
             x = k[0]
             y = k[1]
         }
-        
-        if(this.online) {
+
+        if (this.online) {
             if (!fromSocket) {
                 this.socket.emit("play", {player: this.localPLayer, room: this.room, checks: [x, y]})
                 return
@@ -220,7 +211,7 @@ export class Board
 
         check.classList.add(this.currentPlayer === -1 ? "bg-primary" : "bg-danger")
         check.setAttribute("check-number",
-            ++this.currentPiece < 10 ? "0" + this.currentPiece : this.currentPiece);
+            ++this.currentPiece < 10 ? "0" + this.currentPiece : this.currentPiece)
 
         if (this.didGameEnd([x, y])) {
             let winnerScoreText =
@@ -233,12 +224,25 @@ export class Board
         this.currentPlayer = -this.currentPlayer
     }
 
+    updateOnlineBoardStatus() {
+        let boardChecks = document.getElementsByClassName("gomoku-board-check")
+
+        if (this.currentPlayer === this.localPLayer) {
+            for (let i = 0; i < boardChecks.length; i++) boardChecks.item(i).classList.remove("disabled")
+        } else {
+            for (let i = 0; i < boardChecks.length; i++) boardChecks.item(i).classList.add("disabled")
+        }
+    }
+
     registerPlayer()
     {
         this.room = document.getElementById("name-input").value
         this.socket = io("https://gomokuws.ygarasab.com")
         this.socket
-            .on("play", data => this.checkPlace(data, true))
+            .on("play", data => {
+                this.checkPlace(data, true)
+                this.updateOnlineBoardStatus()
+            })
             .on("joined", ({player}) => {
                 this.online = true
                 this.localPLayer = player
@@ -246,7 +250,10 @@ export class Board
                 if(this.localPLayer === -1) this.showOverlay("hold")
                 else this.hideOverlays(true)
             })
-            .on("ready", () => this.hideOverlays(true))
+            .on("ready", () => {
+                this.updateOnlineBoardStatus()
+                this.hideOverlays(true)
+            })
             .on("full", () => {
                 alert("The room is full. Please try another room or play offline.")
                 this.unregisterPlayer()
