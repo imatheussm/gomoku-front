@@ -15,7 +15,7 @@
     background-color: RGBA(255, 255, 255, .8);
 }
 
-.overlay-night {
+.overlay.night {
     background-color: RGBA(34, 34, 34, .8)!important;
 }
 
@@ -33,9 +33,17 @@
     cursor: pointer;
 }
 
+.gomoku-board-check.night {
+    background-color: var(--bs-gray-500);!important;
+}
+
 .gomoku-board-check.disabled {
     background-color: var(--bs-gray-500);
     cursor: default;
+}
+
+.gomoku-board-check.disabled.night {
+    background-color: var(--bs-gray-600);!important;
 }
 
 .gomoku-board-check.bg-primary::after, .gomoku-board-check.bg-danger::after {

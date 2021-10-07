@@ -137,6 +137,7 @@ export class Board
 
     updateTheme()
     {
+        let boardChecks = document.getElementsByClassName("gomoku-board-check")
         let themeStylesheets = document.getElementsByClassName("theme-stylesheet")
         let overlays = document.getElementsByClassName("overlay")
         let isDark = document.getElementById("theme-switch").checked ? "-night" : ""
@@ -151,7 +152,13 @@ export class Board
         for (let i = 0; i < overlays.length; i++) {
             let overlay = overlays.item(i)
 
-            isDark ? overlay.classList.add("overlay-night") : overlay.classList.remove("overlay-night")
+            isDark ? overlay.classList.add("night") : overlay.classList.remove("night")
+        }
+
+        for (let i = 0; i < boardChecks.length; i++) {
+            let boardCheck = boardChecks.item(i)
+
+            isDark ? boardCheck.classList.add("night") : boardCheck.classList.remove("night")
         }
 
         for (let i = 0; i < themeStylesheets.length; i++) themeStylesheets.item(i)
